@@ -18,6 +18,8 @@ services:
       - ${BACKEND_PORT}:${BACKEND_PORT}
     volumes:
       - ./services/M1:/app
+    depends_on:
+      - rabbit
     environment:
       PORT: ${BACKEND_PORT}
       RABBIT_PORT: ${RABBIT_PORT}
