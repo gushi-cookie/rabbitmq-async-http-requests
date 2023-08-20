@@ -1,14 +1,20 @@
-FROM node:20.5 as prod
+FROM node:20.5-alpine3.17 as builder
 
 WORKDIR /app
-COPY ./ /app
-RUN npm install --production
+COPY . .
+RUN npm install
 RUN npm run build
 
-WORKDIR /var/www/app
-RUN cp -r /app /var/www
 
-CMD npm run start
+FROM node:20.5-alpine3.17 as prod
+
+WORKDIR /app
+COPY --from=builder /app/dist ./dist
+COPY package.json .
+COPY package-lock.json .
+RUN npm install --production
+
+CMD ["node", "dist/index.js"]
 
 
 
