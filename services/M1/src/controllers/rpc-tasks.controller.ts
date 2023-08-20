@@ -28,7 +28,7 @@ async function reverseText(req: Request, res: Response) {
 
     let timer = createTimeredPromise(timeout);
 
-    channel.consume(replyQueue.queue, (msg: ConsumeMessage | null) => {
+    let consume = await channel.consume(replyQueue.queue, (msg: ConsumeMessage | null) => {
         if(msg?.properties.correlationId !== correlationId) return;
 
         res.json({
@@ -48,6 +48,7 @@ async function reverseText(req: Request, res: Response) {
     if(!timer.state.isResolvedInTime) {
         res.status(400).json({ message: `Couldn't handle request right in time.` });
     }
+    await channel.cancel(consume.consumerTag);
 };
 
 
