@@ -1,0 +1,37 @@
+version: "3.9"
+services:
+  rabbit:
+    container_name: rabbitmq
+    image: rabbitmq:3.12.2
+    restart: always
+    environment:
+      PORT: ${RABBIT_PORT}
+
+  m1:
+    container_name: m1
+    user: "${UID}:${GID}"
+    build:
+      context: ./services/M1/
+      target: ${BUILD_TARGET}
+    restart: always
+    ports:
+      - ${BACKEND_PORT}:${BACKEND_PORT}
+    volumes:
+      - ./services/M1:/app
+    environment:
+      PORT: ${BACKEND_PORT}
+      RABBIT_PORT: ${RABBIT_PORT}
+
+  m2:
+    container_name: m2
+    user: "${UID}:${GID}"
+    build:
+      context: ./services/M2/
+      target: ${BUILD_TARGET}
+    restart: always
+    volumes:
+      - ./services/M2:/app
+    depends_on:
+      - rabbit
+    environment:
+      RABBIT_PORT: ${RABBIT_PORT}
